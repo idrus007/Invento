@@ -80,8 +80,6 @@ const ListCategories = () => {
 
   const categories = categoriesResponse?.data ?? [];
 
-  console.log(categories);
-
   return (
     <DashboardLayout header="Categories">
       <div className="h-full w-full flex flex-col gap-4">
