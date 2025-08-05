@@ -7,7 +7,7 @@ import { Logo } from "../../components/ui/Logo.jsx";
 import { useAuth } from "../../hooks/useAuth.js";
 
 const Login = () => {
-  const { login } = useAuth(); // ✅ ambil dari context
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,46 +18,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(email, password); // ✅ pakai fungsi dari context
+      await login(email, password);
     } catch (error) {
       console.error(error);
+      setEmail("");
+      setPassword("");
     } finally {
       setLoading(false);
     }
   };
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [loading, setLoading] = useState(false);
-  // const navigate = useNavigate();
-
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   try {
-  //     const response = await login(email, password);
-
-  //     if (!response || !response.data) {
-  //       throw new Error("Response dari server tidak valid");
-  //     }
-
-  //     const { token, user } = response.data;
-
-  //     if (!token) {
-  //       throw new Error("Token tidak ditemukan di response API");
-  //     }
-
-  //     Cookies.set("token", token, { expires: 7, secure: true, path: "/" });
-
-  //     toast.success(`Login berhasil. Selamat datang, ${user.name}!`);
-  //     navigate("/dashboard");
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error(error.response.data.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   return (
     <div className="flex min-h-screen items-center justify-center px-4 bg-gray-50">
       <div className="flex w-full max-w-4xl overflow-hidden rounded-lg shadow-lg">
@@ -65,11 +34,11 @@ const Login = () => {
           <div className="flex flex-col gap-4">
             <Logo />
             <div className="flex flex-col">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Masuk ke akun Anda
+              <h2 className="text-3xl font-bold text-gray-800">
+                Sign In To Your Account
               </h2>
               <p className="text-sm text-gray-500">
-                Silahkan masuk dengan email dan password Anda
+                Please sign in with your email and password
               </p>
             </div>
           </div>
@@ -123,11 +92,11 @@ const Login = () => {
                   htmlFor="remember-me"
                   className="ml-2 block text-sm text-gray-900"
                 >
-                  Ingat saya
+                  Remember me
                 </label>
               </div>
               <a href="#" className="text-sm text-gray-800 hover:text-black">
-                Lupa Password?
+                Forgot your password?
               </a>
             </div>
 
@@ -138,10 +107,10 @@ const Login = () => {
               className="flex w-full items-center justify-center py-2.5"
             >
               {loading ? (
-                <>Loading...</>
+                <>Signing in...</>
               ) : (
                 <>
-                  Masuk
+                  Sign In
                   <LogIn size={20} className="ml-2" />
                 </>
               )}
@@ -158,15 +127,7 @@ const Login = () => {
               backgroundRepeat: "repeat",
             }}
           />
-          <div className="relative z-10 flex h-full w-full flex-col items-start justify-end text-start p-8 text-white bg-indigo-700/20">
-            {/* <h2 className="text-2xl font-bold leading-tight mb-2">
-              Selamat Datang di Grosirku
-            </h2>
-            <p className="text-base max-w-sm">
-              Kelola stok barang, pantau transaksi, dan tingkatkan efisiensi
-              bisnis grosir Anda secara mudah dan cepat.
-            </p> */}
-          </div>
+          <div className="relative z-10 flex h-full w-full flex-col items-start justify-end text-start p-8 text-white bg-indigo-700/20"></div>
         </div>
       </div>
     </div>

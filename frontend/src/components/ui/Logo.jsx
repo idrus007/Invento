@@ -9,7 +9,7 @@ export function Logo() {
       >
         <Warehouse className="w-5 h-5" />
       </span>
-      <span className="text-xl font-semibold text-gray-800">Grosirku</span>
+      <span className="text-xl font-bold text-gray-800">Invento</span>
     </div>
   );
 }
