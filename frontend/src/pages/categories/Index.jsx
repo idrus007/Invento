@@ -43,7 +43,7 @@ const ListCategories = () => {
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnReconnect: true,
   });
 
@@ -79,6 +79,8 @@ const ListCategories = () => {
     );
 
   const categories = categoriesResponse?.data ?? [];
+
+  console.log(categories);
 
   return (
     <DashboardLayout header="Categories">
@@ -119,7 +121,7 @@ const ListCategories = () => {
                     className="*:text-gray-900 *:first:font-medium text-sm"
                   >
                     <TableCell>{category.name}</TableCell>
-                    <TableCell className="text-gray-500">
+                    <TableCell className="text-gray-500 max-w-xs truncate">
                       {category.description}
                     </TableCell>
                     <TableCell>
