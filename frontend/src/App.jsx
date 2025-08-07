@@ -15,6 +15,7 @@ import ListProducts from "./pages/products/Index.jsx";
 import CreateProduct from "./pages/products/Create.jsx";
 import EditCategory from "./pages/categories/Edit.jsx";
 import { AuthProvider } from "./providers/AuthProvider.jsx";
+import EditProduct from "./pages/products/Edit.jsx";
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/categories/edit/:id" element={<EditCategory />} />
             <Route path="/products" element={<ListProducts />} />
             <Route path="/products/create" element={<CreateProduct />} />
+            <Route path="/products/edit/:id" element={<EditProduct />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -6,7 +6,6 @@ import {
   Package,
   ShoppingCart,
   PanelLeft,
-  Bell,
   Users,
   Truck,
   ChartNoAxesCombined,
@@ -15,7 +14,6 @@ import {
   Container,
   LogOut,
   UserPen,
-  UserRound,
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import {
@@ -24,9 +22,19 @@ import {
   PopoverTrigger,
 } from "../components/ui/Popover.jsx";
 import { useAuth } from "../hooks/useAuth.js";
+import { useEffect, useState } from "react";
 
 export function DashboardLayout({ children, header }) {
   const { user, logout } = useAuth();
+  const [isSidebarVisible, setIsSidebarVisible] = useState(() => {
+    const stored = localStorage.getItem("sidebarVisible");
+    return stored === null ? true : stored === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sidebarVisible", isSidebarVisible);
+  }, [isSidebarVisible]);
+
   const navItems = [
     { label: "Dashboard", icon: Home, to: "/dashboard" },
     { label: "Categories", icon: LayoutGrid, to: "/categories" },
@@ -42,7 +50,11 @@ export function DashboardLayout({ children, header }) {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 hidden md:block p-4">
+      <aside
+        className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 p-4 transition-all duration-500 ease-in-out z-40
+        ${isSidebarVisible ? "translate-x-0" : "-translate-x-full"}
+      `}
+      >
         <div className="flex flex-col gap-4 h-full">
           <Logo />
           <nav className="space-y-2">
@@ -66,26 +78,34 @@ export function DashboardLayout({ children, header }) {
         </div>
       </aside>
 
-      <div className="flex flex-col gap-4 flex-1 h-screen ml-0 md:ml-64 p-4 overflow-y-auto">
+      {isSidebarVisible && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30 sm:hidden"
+          onClick={() => setIsSidebarVisible(false)}
+        ></div>
+      )}
+
+      <div
+        className={`flex flex-col gap-4 flex-1 h-screen transition-all duration-500 ${
+          isSidebarVisible ? "md:ml-64" : "ml-0"
+        } p-4 overflow-y-auto`}
+      >
         <header className="flex items-center justify-between">
           <div className="flex items-center">
-            <Button variant="ghost" className="text-black">
+            <Button
+              onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+              variant="ghost"
+              className="text-black"
+            >
               <PanelLeft size={18} />
             </Button>
 
             {header && <h1 className="text-xl font-semibold">{header}</h1>}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="text-black">
-              <Bell size={18} />
-            </Button>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 text-black"
-                >
-                  <UserRound size={18} />
+                <Button variant="ghost" className="text-black">
                   <span>{user?.name || "Guest"}</span>
                 </Button>
               </PopoverTrigger>

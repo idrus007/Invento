@@ -20,51 +20,45 @@ import {
   Trash2,
   TriangleAlert,
 } from "lucide-react";
-import { getProducts } from "../../services/product.js";
-import { useQuery } from "@tanstack/react-query";
 import { HashLoader } from "react-spinners";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "../../components/ui/Popover.jsx";
+import { useProducts } from "../../hooks/useProduct.js";
 
 const ListProducts = () => {
   const {
-    data: productsResponse = [],
+    products,
+    message,
     isLoading,
     isError,
     error,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: getProducts,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: true,
-  });
+    handleDelete,
+    isDeleting,
+  } = useProducts();
 
-  if (isLoading)
+  if (isLoading) {
     return (
-      <DashboardLayout header="Products">
+      <DashboardLayout header="Categories">
         <div className="flex h-full w-full items-center justify-center">
           <HashLoader color="#3B82F6" />
         </div>
       </DashboardLayout>
     );
+  }
 
-  if (isError)
+  if (isError) {
     return (
-      <DashboardLayout header="Products">
+      <DashboardLayout header="Categories">
         <div className="flex h-full w-full items-center justify-center text-red-500">
           {error.message}
         </div>
       </DashboardLayout>
     );
+  }
 
-  const products = productsResponse?.data ?? [];
-  console.log(products);
   return (
     <DashboardLayout header="Products">
       <div className="h-full w-full flex flex-col gap-4">
@@ -133,7 +127,7 @@ const ListProducts = () => {
                         <PopoverContent className="w-fit">
                           <div className="w-full flex flex-col items-start gap-2">
                             <Link
-                              to="#"
+                              to={`/products/edit/${product.id}`}
                               className="w-full flex items-center text-sm font-medium px-4 py-2 border border-gray-300 rounded-md"
                             >
                               <Pen size={18} className="mr-3" /> Edit
@@ -141,9 +135,19 @@ const ListProducts = () => {
                             <Button
                               variant="destructive"
                               className="w-full flex items-center gap-2"
+                              disabled={isDeleting}
+                              onClick={() => {
+                                if (
+                                  window.confirm(`Delete "${product.name}"?`)
+                                ) {
+                                  handleDelete(product.id);
+                                }
+                              }}
                             >
                               <Trash2 size={18} />
-                              <span>Delete</span>
+                              <span>
+                                {isDeleting ? "Deleting..." : "Delete"}
+                              </span>
                             </Button>
                           </div>
                         </PopoverContent>
@@ -159,7 +163,7 @@ const ListProducts = () => {
             <div className="text-yellow-500">
               <TriangleAlert size={18} />
             </div>
-            <span>{productsResponse.message}</span>
+            <span>{message}</span>
           </div>
         )}
       </div>

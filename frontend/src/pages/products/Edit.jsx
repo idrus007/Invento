@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-import { DashboardLayout } from "../../layouts/DashboardLayout";
-import { useNavigate } from "react-router-dom";
-import { Label } from "../../components/ui/Label";
-import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getProductById, updateProduct } from "../../services/product";
 import { useCategories } from "../../hooks/useCategory";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createProduct } from "../../services/product";
-import toast from "react-hot-toast";
+import { DashboardLayout } from "../../layouts/DashboardLayout.jsx";
+import { Input } from "../../components/ui/Input.jsx";
+import { Button } from "../../components/ui/Button.jsx";
+import { Label } from "../../components/ui/Label.jsx";
+import { toast } from "react-hot-toast";
 
-const CreateProduct = () => {
+const EditProduct = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { categories, isLoading, isError, error } = useCategories();
+
   const [formData, setFormData] = useState({
     name: "",
     category_id: "",
@@ -20,19 +21,44 @@ const CreateProduct = () => {
     purchase_price: "",
     selling_price: "",
   });
-  const [formError, setFormError] = useState("");
+
+  const [error, setError] = useState("");
+
+  const { categories, isLoading: isLoadingCategories } = useCategories();
+
+  const {
+    data: productResponse,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["product", id],
+    queryFn: () => getProductById(id),
+  });
+
+  useEffect(() => {
+    if (productResponse?.data) {
+      const product = productResponse.data;
+      setFormData({
+        name: product.name,
+        category_id: product.category_id,
+        unit: product.unit,
+        purchase_price: product.purchase_price,
+        selling_price: product.selling_price,
+      });
+    }
+  }, [productResponse]);
 
   const mutation = useMutation({
-    mutationFn: createProduct,
+    mutationFn: (payload) => updateProduct(id, payload),
     onSuccess: (res) => {
       queryClient.invalidateQueries(["products"]);
       toast.success(res.message);
-
       navigate("/products");
     },
     onError: (err) => {
-      setFormError(err.response?.data?.message);
-      toast.error(err.response?.data?.message);
+      const msg = err?.response?.data?.message;
+      setError(msg);
+      toast.error(msg);
     },
   });
 
@@ -45,12 +71,30 @@ const CreateProduct = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setFormError("");
+    setError("");
     mutation.mutate(formData);
   };
 
+  if (isLoading) {
+    return (
+      <DashboardLayout header="Edit Product">
+        <p className="text-center py-4 text-sm text-gray-500">Loading...</p>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout header="Edit Product">
+        <p className="text-center py-4 text-sm text-red-500">
+          Gagal memuat data produk.
+        </p>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <DashboardLayout header="Create Product">
+    <DashboardLayout header="Edit Product">
       <form
         onSubmit={handleSubmit}
         className="w-full space-y-4 p-4 bg-white rounded-xl border border-gray-200"
@@ -58,20 +102,17 @@ const CreateProduct = () => {
         <div>
           <Label htmlFor="name">Product Name</Label>
           <Input
-            type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Add product name"
+            placeholder="Masukkan nama produk"
           />
         </div>
 
         <div>
           <Label htmlFor="category_id">Category</Label>
-          {isLoading ? (
+          {isLoadingCategories ? (
             <p className="text-sm text-gray-500">Loading categories...</p>
-          ) : isError ? (
-            <p className="text-sm text-red-500">{error.message}</p>
           ) : (
             <select
               name="category_id"
@@ -80,7 +121,7 @@ const CreateProduct = () => {
               className="w-full rounded-md border border-gray-300 shadow-xs text-sm px-3 py-2 focus:outline-none focus:border-blue-500"
             >
               <option value="" disabled hidden>
-                Select category
+                Pilih kategori
               </option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -100,7 +141,7 @@ const CreateProduct = () => {
             className="w-full rounded-md border border-gray-300 shadow-xs text-sm px-3 py-2 focus:outline-none focus:border-blue-500"
           >
             <option value="" disabled hidden>
-              Select unit
+              Pilih satuan
             </option>
             <option value="cart">Carton</option>
             <option value="box">Box</option>
@@ -136,7 +177,7 @@ const CreateProduct = () => {
               name="purchase_price"
               value={formData.purchase_price}
               onChange={handleChange}
-              placeholder="Add purchase price"
+              placeholder="Harga beli"
               className="pl-9"
             />
           </div>
@@ -153,13 +194,13 @@ const CreateProduct = () => {
               name="selling_price"
               value={formData.selling_price}
               onChange={handleChange}
-              placeholder="Add selling price"
+              placeholder="Harga jual"
               className="pl-9"
             />
           </div>
         </div>
 
-        {formError && <p className="text-sm text-red-500">{formError}</p>}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex justify-end gap-2">
           <Button
@@ -169,13 +210,8 @@ const CreateProduct = () => {
           >
             Cancel
           </Button>
-
-          <Button
-            type="submit"
-            disabled={mutation.isLoading}
-            className={mutation.isLoading ? "cursor-wait" : "cursor-pointer"}
-          >
-            {mutation.isLoading ? "Saving..." : "Save"}
+          <Button type="submit" disabled={mutation.isLoading}>
+            {mutation.isLoading ? "Updating..." : "Update"}
           </Button>
         </div>
       </form>
@@ -183,4 +219,4 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default EditProduct;

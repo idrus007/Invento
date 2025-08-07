@@ -19,48 +19,26 @@ import {
   TableBody,
   TableCell,
 } from "../../components/ui/Table.jsx";
-import { useQuery } from "@tanstack/react-query";
-import { getCategories } from "../../services/category.js";
 import { HashLoader } from "react-spinners";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "../../components/ui/Popover.jsx";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCategory } from "../../services/category.js";
-import { toast } from "react-hot-toast";
+import { useCategories } from "../../hooks/useCategory.js";
 
 const ListCategories = () => {
   const {
-    data: categoriesResponse = [],
+    categories,
+    message,
     isLoading,
     isError,
     error,
-  } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategories,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-  });
+    handleDelete,
+    isDeleting,
+  } = useCategories();
 
-  const queryClient = useQueryClient();
-
-  const { mutate: handleDelete, isLoading: isDeleting } = useMutation({
-    mutationFn: deleteCategory,
-    onSuccess: (res) => {
-      toast.success(res.message);
-      queryClient.invalidateQueries(["categories"]);
-    },
-    onError: (err) => {
-      toast.error(err?.response?.data?.message);
-    },
-  });
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <DashboardLayout header="Categories">
         <div className="flex h-full w-full items-center justify-center">
@@ -68,8 +46,9 @@ const ListCategories = () => {
         </div>
       </DashboardLayout>
     );
+  }
 
-  if (isError)
+  if (isError) {
     return (
       <DashboardLayout header="Categories">
         <div className="flex h-full w-full items-center justify-center text-red-500">
@@ -77,8 +56,7 @@ const ListCategories = () => {
         </div>
       </DashboardLayout>
     );
-
-  const categories = categoriesResponse?.data ?? [];
+  }
 
   return (
     <DashboardLayout header="Categories">
@@ -170,7 +148,7 @@ const ListCategories = () => {
             <div className="text-yellow-500">
               <TriangleAlert size={18} />
             </div>
-            <span>{categoriesResponse.message}</span>
+            <span>{message}</span>
           </div>
         )}
       </div>

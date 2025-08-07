@@ -57,7 +57,7 @@ const CreateCategory = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Masukkan nama kategori"
+            placeholder="Add category name"
           />
         </div>
 
@@ -68,7 +68,7 @@ const CreateCategory = () => {
             value={formData.description}
             onChange={handleChange}
             rows={5}
-            placeholder="Masukkan deskripsi"
+            placeholder="Add category description"
             className="w-full rounded-md border border-gray-300 shadow-xs text-sm px-3 py-2 focus:outline-none focus:border-blue-500"
           ></textarea>
         </div>
